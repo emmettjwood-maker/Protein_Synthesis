@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>From Gene to Protein: Interactive Lab</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--tx:#1d2330;--mut:#5d6575;--bd:#cfccc2;--ac:#0f766e;--hi:#c2410c;--glow:#fde68a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--card:#1e232c;--tx:#e8eaee;--mut:#9aa3b2;--bd:#3d4554;--ac:#2dd4bf;--hi:#fb923c;--glow:#5b4a12}}
+:root[data-theme="dark"]{--bg:#14171d;--card:#1e232c;--tx:#e8eaee;--mut:#9aa3b2;--bd:#3d4554;--ac:#2dd4bf;--hi:#fb923c;--glow:#5b4a12}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:960px;margin:0 auto;padding:14px}
+h1{font-size:1.4rem;margin:0}h2{font-size:1.05rem;margin:0 0 6px}.sub{color:var(--mut);font-size:.9rem}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:6px 12px}
+button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.pn{display:none}.pn.on{display:block}
+.scroll{overflow-x:auto;padding-bottom:6px}
+.lab{font-size:.78rem;font-weight:600;color:var(--mut);margin:10px 0 3px;text-transform:uppercase;letter-spacing:.03em}
+.row{display:flex;align-items:center;min-height:32px;white-space:nowrap}
+.end{width:34px;font-weight:700;font-size:.85rem;color:var(--hi);text-align:center;flex:none}
+.c{display:inline-flex;flex:none;width:22px;height:26px;margin:1px;align-items:center;justify-content:center;font:600 13px ui-monospace,Menlo,monospace;border-radius:4px;border:1.5px solid var(--bd);color:#111;background:#f3f4f6;transition:all .5s}
+.c.e{background:#bfdbfe;border-color:#3b82f6}.c.i{background:#d1d5db;border-color:#6b7280}
+.b-A{background:#fecdd3;border-color:#e11d48}.b-T,.b-U{background:#fde68a;border-color:#d97706}.b-G{background:#bbf7d0;border-color:#16a34a}.b-C{background:#bfdbfe;border-color:#2563eb}
+.c.hid{opacity:0;transform:scale(.3)}.c.out{width:0;margin:1px 0;opacity:0;border-width:0;transform:translateY(-24px)}.c.cod{margin-right:14px}
+.c.cur{outline:3px solid var(--ac);outline-offset:1px}
+.cmp .cr .c,.cmp .mr .c{outline:2px dashed var(--hi)}
+.seg{display:flex;font-size:.75rem;font-weight:600}.seg div{text-align:center;border-radius:4px;padding:1px 0;margin-right:2px;color:#111}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.dots i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bd);margin-right:4px}.dots i.on{background:var(--ac)}
+.note{margin-top:8px;padding:8px 10px;background:var(--glow);border-radius:8px;min-height:3.2em;color:var(--tx)}
+.chips{display:flex;gap:6px;min-height:34px}.chip{padding:3px 10px;border-radius:14px;color:#111;font-weight:600;font-size:.85rem;opacity:0;transform:translateY(8px);transition:all .5s}.chip.show{opacity:1;transform:none}
+.pol{position:absolute;top:-4px;background:var(--ac);color:#fff;border-radius:6px;padding:1px 8px;font-size:.75rem;transition:left .5s,opacity .5s;white-space:nowrap}
+.ribo{position:relative;width:500px;height:215px;margin-top:6px}
+.rib{position:absolute;top:4px;height:160px;width:190px;border-radius:50px 50px 20px 20px;background:rgba(120,120,160,.28);border:2px dashed var(--mut);transition:left .6s;font-size:.7rem;color:var(--mut);text-align:center;padding-top:2px}
+.cd{position:absolute;top:172px;width:90px;display:flex;justify-content:center}
+.trna{position:absolute;top:30px;width:84px;height:136px;text-align:center;transition:all .6s;opacity:0;transform:translateY(-26px)}
+.trna.show{opacity:1;transform:none}.trna.dim{opacity:.4}
+.aa{display:inline-block;padding:1px 10px;border-radius:12px;color:#111;font-weight:700;font-size:.82rem}
+.stem{width:34px;height:60px;margin:2px auto;background:var(--mut);border-radius:17px 17px 4px 4px;opacity:.6;font-size:.7rem;color:#fff;padding-top:18px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}th,td{border:1px solid var(--bd);padding:4px 8px;text-align:center}th{background:var(--bg)}tr.hid{opacity:0}tr{transition:opacity .5s}
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;font-size:.85rem}.roles div{border-left:4px solid var(--ac);padding-left:8px}
+ul{margin:4px 0;padding-left:20px}li{margin:3px 0}
+svg{width:100%;height:auto;display:block}
+.flow{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}.flow span{padding:3px 10px;border-radius:14px;border:1px solid var(--bd);font-size:.8rem}.flow span.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.t{font:11px system-ui;fill:var(--tx)}
+</style></head><body><main>
+<h1>From gene to protein</h1>
+<div class="sub">Step through each stage with the buttons. Scroll sideways on small screens.</div>
+<div class="tabs" id="tabs"></div>
+<div id="panels"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const comp=b=>({A:'T',T:'A',G:'C',C:'G'})[b],rna=b=>({A:'U',T:'A',G:'C',C:'G'})[b];
+const cell=(b,x='')=>`<span class="c b-${b} ${x}">${b}</span>`;
+const ctl=(p,auto)=>`<div class="ctl"><button id="${p}-prev">◀ Back</button><button id="${p}-next" class="on">Next ▶</button>${auto?`<button id="${p}-auto">▶ Auto-play</button>`:''}<button id="${p}-rst">↺ Reset</button><span class="dots" id="${p}-dots"></span></div><div class="note" id="${p}-note"></div>`;
+function stepper(p,max,render,note,ms=2600){let s=0,tm=null;
+ $(`#${p}-dots`).innerHTML=Array.from({length:Math.min(max,16)+1},()=>'<i></i>').join('');
+ const go=n=>{s=Math.max(0,Math.min(max,n));render(s);const d=$$(`#${p}-dots i`);d.forEach((x,i)=>x.classList.toggle('on',i==Math.round(s/max*(d.length-1))));$(`#${p}-note`).innerHTML=typeof note=='function'?note(s):note[s];if(s==max)stop()};
+ const stop=()=>{clearInterval(tm);tm=null;const a=$(`#${p}-auto`);if(a)a.textContent='▶ Auto-play'};
+ $(`#${p}-prev`).onclick=()=>{stop();go(s-1)};$(`#${p}-next`).onclick=()=>{stop();go(s+1)};$(`#${p}-rst`).onclick=()=>{stop();go(0)};
+ const a=$(`#${p}-auto`);if(a)a.onclick=()=>{if(tm)return stop();if(s>=max)go(0);a.textContent='⏸ Pause';tm=setInterval(()=>go(s+1),ms)};go(0)}
+
+const PN=[
+`<div class="card"><h2>1 · Genes: exons and introns</h2><div class="scroll"><div class="lab">Gene structure</div><div class="seg" id="gseg"></div><div class="lab">DNA gene, coding strand 5′→3′ (in the nucleus)</div><div class="row" id="g1"></div><div class="lab" id="g2l">RNA</div><div class="row" id="g2"></div><div class="lab">Polypeptide (made at a ribosome in the cytoplasm)</div><div class="chips" id="g3"></div></div>${ctl('g')}</div>
+<div class="card"><b>Key points</b><ul><li>A gene is a unique sequence of nucleotides that codes for a functional protein or RNA molecule.</li><li><b>Exons</b> are coding segments; <b>introns</b> are non-coding segments found within eukaryotic genes.</li><li>Both exons and introns are transcribed into pre-mRNA, but introns are spliced out, so only exon information is translated into a polypeptide.</li></ul></div>`,
+`<div class="card"><h2>2 · Transcription in the nucleus</h2><div class="scroll" id="tx"><div style="position:relative;padding-top:22px;width:max-content" id="txi"><div class="pol" id="pol">RNA polymerase</div>
+<div class="lab">Coding (gene, sense) strand</div><div class="row cr" id="t1"></div><div class="lab">Template (antisense) strand</div><div class="row" id="t2"></div><div class="lab">mRNA (new strand)</div><div class="row mr" id="t3"></div></div></div>
+<label class="ctl"><input type="checkbox" id="cmpb"> Highlight: coding strand vs mRNA</label>${ctl('t',1)}</div>
+<div class="card"><b>Key points</b><ul><li>DNA strands are <b>antiparallel and directional</b>: one runs 5′→3′, the other 3′→5′. By convention we read DNA 5′→3′.</li><li>RNA polymerase reads the <b>template strand</b> 3′→5′ and builds mRNA 5′→3′ (new nucleotides join at the 3′ end).</li><li>The <b>coding strand</b> has the same sequence as the mRNA, with U in place of T.</li></ul></div>`,
+`<div class="card"><h2>3 · Translation at the ribosome</h2><div class="lab">Polypeptide being built</div><div class="chips" id="pp"></div><div class="scroll"><div class="ribo" id="rb"></div></div>${ctl('r',1)}
+<div class="scroll"><table><thead><tr><th>Codon</th><th>DNA coding strand</th><th>DNA template strand</th><th>mRNA codon</th><th>tRNA anticodon</th><th>Amino acid</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+<div class="card"><div class="roles"><div><b>DNA</b><br>stores the gene; template strand is transcribed.</div><div><b>mRNA</b><br>carries the codons from nucleus to ribosome.</div><div><b>tRNA</b><br>brings a specific amino acid; its anticodon pairs with the mRNA codon.</div><div><b>rRNA</b><br>makes up the ribosome with proteins and helps form peptide bonds.</div></div>
+<ul><li>coding-strand triplet = mRNA codon (T→U); template triplet and tRNA anticodon are complementary to the codon.</li><li>AUG is the start codon (Met); UAA is a stop codon with no tRNA.</li></ul></div>`,
+`<div class="card"><h2>4 · Protein structure</h2><div class="flow" id="fl"></div><div id="sv"></div>${ctl('s')}</div><div class="card" id="si"></div>`];
+$('#panels').innerHTML=PN.map((h,i)=>`<section class="pn" id="p${i}">${h}</section>`).join('');
+$('#tabs').innerHTML=['1 Exons & introns','2 Transcription','3 Translation','4 Protein structure'].map((t,i)=>`<button onclick="tab(${i})">${t}</button>`).join('');
+function tab(i){$$('.pn').forEach((p,k)=>p.classList.toggle('on',k==i));$$('#tabs button').forEach((b,k)=>b.classList.toggle('on',k==i))}
+
+/* ---- 1 exons/introns ---- */
+const EX1='ATGTGG',IN='GTAAGTCAG',EX2='AAAGGCTAA',GENE=EX1+IN+EX2,TY=[...GENE].map((_,i)=>i>=6&&i<15?'i':'e');
+let xi=0;const XI=TY.map(t=>t=='e'?xi++:-1);
+$('#gseg').innerHTML=[['Exon 1',6,'#bfdbfe'],['Intron',9,'#d1d5db'],['Exon 2',9,'#bfdbfe']].map(([n,k,c])=>`<div style="width:${k*26-2}px;background:${c}">${n}</div>`).join('');
+$('#g1').innerHTML=[...GENE].map((b,i)=>cell(b,TY[i])).join('');
+$('#g2').innerHTML=[...GENE].map((b,i)=>`<span class="c ${TY[i]} hid">${b==='T'?'U':b}</span>`).join('');
+$('#g3').innerHTML=[['Met','#fca5a5'],['Trp','#fcd34d'],['Lys','#86efac'],['Gly','#93c5fd'],['Stop','#d1d5db']].map(([a,c])=>`<span class="chip" style="background:${c}">${a}</span>`).join('');
+const GN=['The gene sits in the nucleus. Exons (blue) code for the protein. The intron (grey) is non-coding but lies inside the gene.','Transcription: RNA polymerase copies the whole gene, exons and introns, into pre-mRNA (T is replaced by U).','Splicing: the introns are cut out and the exons are joined, forming mature mRNA.','Translation: the ribosome reads only the exon sequence, three bases (one codon) at a time, to build the polypeptide.'];
+stepper('g',3,s=>{$$('#g2 .c').forEach((c,i)=>{c.style.transitionDelay=(s>=1?i*35:0)+'ms';c.classList.toggle('hid',s<1);c.classList.toggle('out',s>=2&&TY[i]=='i');c.classList.toggle('cod',s>=3&&TY[i]=='e'&&XI[i]%3==2&&XI[i]<14)});
+ $('#g2l').textContent=s<1?'':s<2?'Pre-mRNA (exons + introns)':'Mature mRNA (exons only)';
+ $$('#g3 .chip').forEach((c,i)=>{c.style.transitionDelay=i*250+'ms';c.classList.toggle('show',s>=3)})},GN);
+
+/* ---- 2 transcription ---- */
+const COD='ATGTGGAAAGGCTAA',TEM=[...COD].map(comp).join('');
+$('#t1').innerHTML=`<span class="end">5′</span>`+[...COD].map(b=>cell(b)).join('')+`<span class="end">3′</span>`;
+$('#t2').innerHTML=`<span class="end">3′</span>`+[...TEM].map(b=>cell(b)).join('')+`<span class="end">5′</span>`;
+$('#t3').innerHTML=`<span class="end">5′</span>`+[...TEM].map(b=>cell(rna(b),'hid')).join('')+`<span class="end">3′</span>`;
+$('#cmpb').onchange=e=>$('#txi').classList.toggle('cmp',e.target.checked);
+stepper('t',15,s=>{$$('#t3 .c').forEach((c,i)=>c.classList.toggle('hid',i>=s));
+ [1,2,3].forEach(r=>$$(`#t${r} .c`).forEach((c,i)=>c.classList.toggle('cur',i==s-1)));
+ const p=$('#pol');p.style.left=(34+Math.min(s,14)*24)+'px';p.style.opacity=s==15?0:1},
+ s=>s==0?'Press Next. RNA polymerase unwinds the DNA and reads the template strand (3′→5′).':s<15?`Template ${TEM[s-1]} pairs with ${rna(TEM[s-1])} → mRNA nucleotide ${s} is ${rna(TEM[s-1])}. The mRNA grows 5′→3′.`:'Done: the mRNA 5′-AUGUGGAAAGGCUAA-3′ matches the coding strand (T→U) and is complementary to the template. Tick the box above to compare.',900);
+
+/* ---- 3 translation ---- */
+const CD=['AUG','UGG','AAA','GGC','UAA'],AA=['Met','Trp','Lys','Gly','Stop'],AC=['#fca5a5','#fcd34d','#86efac','#93c5fd','#d1d5db'];
+const cdna=CD.map(c=>c.replace(/U/g,'T')),tdna=cdna.map(c=>[...c].map(comp).join('')),ant=CD.map(c=>[...c].map(b=>({A:'U',U:'A',G:'C',C:'G'})[b]).join(''));
+$('#rb').innerHTML=`<div class="rib" id="rib">Ribosome (rRNA + protein)</div>`+CD.map((c,j)=>`<div class="cd" style="left:${j*96}px">${[...c].map(b=>cell(b)).join('')}</div>`).join('')+
+ CD.slice(0,4).map((c,j)=>`<div class="trna" id="tr${j}" style="left:${j*96+3}px"><span class="aa" style="background:${AC[j]}">${AA[j]}</span><div class="stem">tRNA</div><div style="display:flex;justify-content:center">${[...ant[j]].map(b=>cell(b)).join('')}</div><div class="t">3′ anticodon 5′</div></div>`).join('')+
+ `<div class="trna" id="trf" style="left:${4*96-10}px;width:110px"><span class="aa" style="background:#d1d5db">Release factor</span></div><div class="t" style="position:absolute;top:202px;left:0">mRNA 5′ → 3′</div>`;
+$('#pp').innerHTML=AA.slice(0,4).map((a,j)=>`<span class="chip" style="background:${AC[j]}">${a}</span>`).join('');
+$('#tb').innerHTML=CD.map((c,j)=>`<tr class="hid"><td>${j+1}</td><td>${cdna[j]}</td><td>${tdna[j]}</td><td>${c}</td><td>${j<4?ant[j]:'none'}</td><td>${AA[j]}</td></tr>`).join('');
+const RN=['A ribosome (rRNA + proteins) binds the mRNA at the 5′ end. Press Next to read codon by codon.','Start codon AUG: tRNA with anticodon UAC brings methionine.','Codon UGG: tRNA with anticodon ACC brings tryptophan; a peptide bond forms between Met and Trp.','Codon AAA: anticodon UUU brings lysine. The ribosome moves 5′→3′ along the mRNA.','Codon GGC: anticodon CCG brings glycine.','Stop codon UAA: no tRNA matches. A release factor frees the polypeptide.'];
+stepper('r',5,s=>{$('#rib').style.left=Math.max(0,Math.min(s,4)-1)*96+'px';$('#rib').style.opacity=s==0?.5:1;
+ for(let j=0;j<4;j++){const t=$('#tr'+j);t.classList.toggle('show',s==j+1||s==j+2);t.classList.toggle('dim',s==j+2)}
+ $('#trf').classList.toggle('show',s==5);
+ $$('#pp .chip').forEach((c,j)=>c.classList.toggle('show',s>=j+1));
+ $$('#tb tr').forEach((r,j)=>r.classList.toggle('hid',s<j+1))},RN,2800);
+
+/* ---- 4 protein structure ---- */
+const LV=['Primary','Secondary','Tertiary','Quaternary'],PAL=['#fca5a5','#fcd34d','#86efac','#93c5fd','#c4b5fd','#f9a8d4','#fdba74','#a7f3d0','#bef264'];
+$('#fl').innerHTML=['Gene','mRNA',...LV].map(x=>`<span>${x}</span>`).join('→');
+const fade=(b,x)=>`<g opacity="0"><animate attributeName="opacity" to="1" begin="${b}s" dur=".4s" fill="freeze"/>${x}</g>`;
+function psvg(L){let s='<svg viewBox="0 0 600 260">';
+ if(L==0){const n=['Met','Trp','Lys','Gly','Ser','Cys','Glu','Val','Cys'];for(let i=0;i<9;i++){const x=50+i*62;s+=fade(i*.3,(i?`<line x1="${x-42}" y1="120" x2="${x-20}" y2="120" stroke="var(--tx)" stroke-width="3"/>`:'')+`<circle cx="${x}" cy="120" r="20" fill="${PAL[i]}" stroke="var(--tx)"/><text x="${x}" y="124" text-anchor="middle" font-size="11" fill="#111">${n[i]}</text>`)}
+  s+=`<text class="t" x="50" y="165" text-anchor="middle">N-terminus</text><text class="t" x="546" y="165" text-anchor="middle">C-terminus</text><text class="t" x="300" y="205" text-anchor="middle">Chain of amino acids joined by peptide bonds. The sequence is set by the gene.</text>`}
+ if(L==1){const P=[...Array(12)].map((_,i)=>[40+i*22,85+Math.sin(i*1.1)*28]);let h='';P.forEach((p,i)=>{if(i+4<12)h+=`<line x1="${p[0]}" y1="${p[1]}" x2="${P[i+4][0]}" y2="${P[i+4][1]}" stroke="#c2410c" stroke-dasharray="3 3"/>`});
+  s+=fade(0,`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--mut)" stroke-width="3"/>`+h+P.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="7" fill="${PAL[i%9]}" stroke="var(--tx)"/>`).join('')+`<text class="t" x="165" y="150" text-anchor="middle">α-helix</text>`);
+  let q='';for(let k=0;k<7;k++){const x=340+k*34;q+=`<circle cx="${x}" cy="70" r="7" fill="${PAL[k]}" stroke="var(--tx)"/><circle cx="${x}" cy="110" r="7" fill="${PAL[8-k]}" stroke="var(--tx)"/><line x1="${x}" y1="77" x2="${x}" y2="103" stroke="#c2410c" stroke-dasharray="3 3"/>`}
+  s+=fade(1,`<line x1="340" y1="70" x2="580" y2="70" stroke="var(--mut)" stroke-width="3"/><line x1="580" y1="110" x2="340" y2="110" stroke="var(--mut)" stroke-width="3"/>`+q+`<text class="t" x="460" y="150" text-anchor="middle">β-pleated sheet</text>`)+
+  `<text class="t" x="300" y="200" text-anchor="middle" fill="#c2410c">Dashed lines: hydrogen bonds between backbone C=O and N–H groups (not R groups)</text>`}
+ if(L==2){s+=fade(0,`<path d="M120 150 C80 60 200 20 260 60 S 400 40 440 100 S 380 220 280 200 S 140 230 120 150Z" fill="rgba(45,212,191,.2)" stroke="var(--ac)" stroke-width="6" stroke-linejoin="round"/>`)+
+  fade(.8,`<line x1="175" y1="95" x2="300" y2="165" stroke="#ca8a04" stroke-width="4"/><circle cx="175" cy="95" r="6" fill="#facc15"/><circle cx="300" cy="165" r="6" fill="#facc15"/><text class="t" x="20" y="90">Disulfide bridge</text><text class="t" x="20" y="104">(covalent, Cys–Cys)</text>`+
+  `<text x="365" y="95" font-size="16" fill="#dc2626">+</text><text x="395" y="130" font-size="16" fill="#2563eb">−</text><line x1="372" y1="92" x2="392" y2="124" stroke="#a855f7" stroke-width="2"/><text class="t" x="455" y="90">Ionic bond</text>`+
+  `<line x1="215" y1="175" x2="255" y2="140" stroke="#c2410c" stroke-dasharray="3 3" stroke-width="2"/><text class="t" x="20" y="200">Hydrogen bond</text>`+
+  `<circle cx="290" cy="105" r="9" fill="#9ca3af"/><circle cx="312" cy="118" r="9" fill="#9ca3af"/><circle cx="288" cy="128" r="9" fill="#9ca3af"/><text class="t" x="455" y="190">Hydrophobic R groups</text><text class="t" x="455" y="204">cluster in the core</text>`)+
+  `<text class="t" x="300" y="248" text-anchor="middle">R-group interactions fold the chain into a unique 3D shape.</text>`}
+ if(L==3){const B=[[200,85,'α','#93c5fd',-70,-50],[340,85,'β','#86efac',70,-50],[200,185,'β','#86efac',-70,50],[340,185,'α','#93c5fd',70,50]];
+  s+=B.map(([x,y,n,c,dx,dy])=>`<g><animateTransform attributeName="transform" type="translate" from="${dx} ${dy}" to="0 0" dur="1.4s" fill="freeze"/><ellipse cx="${x}" cy="${y}" rx="62" ry="40" fill="${c}" stroke="var(--tx)" stroke-width="2"/><circle cx="${x}" cy="${y}" r="9" fill="#dc2626"/><text x="${x-30}" y="${y-22}" font-size="12" fill="#111">${n} chain</text></g>`).join('')+
+  `<text class="t" x="430" y="80">Haemoglobin:</text><text class="t" x="430" y="96">2 α + 2 β chains</text><circle cx="436" cy="125" r="7" fill="#dc2626"/><text class="t" x="448" y="129">haem group</text><text class="t" x="430" y="147">(prosthetic group)</text><text class="t" x="300" y="248" text-anchor="middle">Several polypeptides held together by the same R-group interactions.</text>`}
+ return s+'</svg>'}
+const INFO=[['Amino acids joined by peptide bonds (condensation).',['Determined by the order of codons in mRNA, which comes from the gene’s nucleotide sequence.','Peptide bonds are covalent.','This sequence determines every higher level of folding.']],
+['Local folding of the backbone.',['Hydrogen bonds between the C=O of one amino acid and the N–H of another in the backbone.','Produces α-helices and β-pleated sheets.','Which pattern forms depends on the primary sequence.']],
+['Overall 3D shape of one polypeptide.',['Interactions between R groups: hydrogen bonds, ionic bonds, disulfide bridges (covalent), hydrophobic interactions (non-polar R groups inside), and van der Waals forces.','Which R groups occur, and where, is set by the primary sequence, so the shape is unique.','Heat or extreme pH breaks these bonds and denatures the protein.']],
+['Two or more polypeptides in one functional protein.',['Held together by the same R-group interactions between chains.','May include a prosthetic group such as haem.','Not every protein has quaternary structure, e.g. haemoglobin does, myoglobin does not.']]];
+stepper('s',3,s=>{$('#sv').innerHTML=psvg(s);$$('#fl span').forEach((x,i)=>x.classList.toggle('on',i==s+2));
+ $('#si').innerHTML=`<h2>${LV[s]} structure</h2><p>${INFO[s][0]}</p><b>What determines it</b><ul>${INFO[s][1].map(x=>`<li>${x}</li>`).join('')}</ul>`},
+ s=>`${LV[s]} structure: ${INFO[s][0]}`);
+tab(0);
+</script></body></html>
